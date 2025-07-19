@@ -127,16 +127,64 @@ if exists('*textobj#user#plugin')
   \   }
   \ })
 
-  " Motion mappings
+
+  " Function to jump to matching end for current function
+  function! s:jump_to_function_end()
+    let save_pos = getpos('.')
+    
+    " Find current function start
+    let func_start = search('^\s*function\s', 'bcnW')
+    if func_start == 0
+      call setpos('.', save_pos)
+      return
+    endif
+    
+    " Find matching end for this specific function
+    call cursor(func_start, 1)
+    let func_end = searchpair('\v^\s*function\s+', '', '\v^\s*end\s*$', 'W')
+    if func_end == 0
+      call setpos('.', save_pos)
+      return
+    endif
+    
+    call cursor(func_end, 1)
+  endfunction
+
+  " Function to jump to matching function start for current end
+  function! s:jump_to_function_start()
+    let save_pos = getpos('.')
+    
+    " Find current position
+    let current_line = line('.')
+    
+    " Find the end statement we're on or near
+    let end_line = search('^\s*end\s*$', 'bcnW')
+    if end_line == 0
+      call setpos('.', save_pos)
+      return
+    endif
+    
+    " Find matching function start for this end
+    call cursor(end_line, 1)
+    let func_start = searchpair('\v^\s*function\s+', '', '\v^\s*end\s*$', 'bW')
+    if func_start == 0
+      call setpos('.', save_pos)
+      return
+    endif
+    
+    call cursor(func_start, 1)
+  endfunction
+
+  " Updated motion mappings to use proper pairing
   nnoremap <silent> <buffer>]m :call search('^\s*function\s', 'W')<cr>
   nnoremap <silent> <buffer>[m :call search('^\s*function\s', 'bW')<cr>
-  nnoremap <silent> <buffer>]M :call search('^\s*end\s*$', 'W')<cr>
-  nnoremap <silent> <buffer>[M :call search('^\s*end\s*$', 'bW')<cr>
+  nnoremap <silent> <buffer>]M :call <SID>jump_to_function_end()<cr>
+  nnoremap <silent> <buffer>[M :call <SID>jump_to_function_start()<cr>
   
   onoremap <silent> <buffer>]m :call search('^\s*function\s', 'W')<cr>
   onoremap <silent> <buffer>[m :call search('^\s*function\s', 'bW')<cr>
-  onoremap <silent> <buffer>]M :call search('^\s*end\s*$', 'W')<cr>
-  onoremap <silent> <buffer>[M :call search('^\s*end\s*$', 'bW')<cr>
+  onoremap <silent> <buffer>]M :call <SID>jump_to_function_end()<cr>
+  onoremap <silent> <buffer>[M :call <SID>jump_to_function_start()<cr>
 
   let g:loaded_textobj_julia = 1
 endif
