@@ -130,13 +130,13 @@ if exists('*textobj#user#plugin')
   " Motion mappings
   nnoremap <silent> <buffer>]m :call search('^\s*function\s', 'W')<cr>
   nnoremap <silent> <buffer>[m :call search('^\s*function\s', 'bW')<cr>
-  nnoremap <silent> <buffer>]M :call search('^\s*macro\s', 'W')<cr>
-  nnoremap <silent> <buffer>[M :call search('^\s*macro\s', 'bW')<cr>
+  nnoremap <silent> <buffer>]M :call search('^\s*end\s*$', 'W')<cr>
+  nnoremap <silent> <buffer>[M :call search('^\s*end\s*$', 'bW')<cr>
   
   onoremap <silent> <buffer>]m :call search('^\s*function\s', 'W')<cr>
   onoremap <silent> <buffer>[m :call search('^\s*function\s', 'bW')<cr>
-  onoremap <silent> <buffer>]M :call search('^\s*macro\s', 'W')<cr>
-  onoremap <silent> <buffer>[M :call search('^\s*macro\s', 'bW')<cr>
+  onoremap <silent> <buffer>]M :call search('^\s*end\s*$', 'W')<cr>
+  onoremap <silent> <buffer>[M :call search('^\s*end\s*$', 'bW')<cr>
 
   let g:loaded_textobj_julia = 1
 endif
