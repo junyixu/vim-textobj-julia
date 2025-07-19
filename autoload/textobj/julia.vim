@@ -95,84 +95,64 @@ function! textobj#julia#find_prev_defn(kwd)
 endfunction
 
 function! textobj#julia#function_select_a()
-    return s:find_defn('function')
+    return s:find_defn_new('function', 'a')
 endfunction
 
 function! textobj#julia#function_select_i()
-    return s:find_defn_inner('function')
+    return s:find_defn_new('function', 'i')
+endfunction
+
+function! s:find_defn_new(kwd, type)
+    if a:type == 'a'
+        let pattern_start = '\v^\s*(' . a:kwd . '|if|for|while|try|begin)\s+'
+        let pattern_end = '\v^\s*end\s*$'
+    elseif a:type == 'i'
+        let pattern_start = '\v^\s*(' . a:kwd . '|if|for|while|try|begin)\s+'
+        let pattern_end = '\v^\s*end\s*$'
+    else
+        return 0
+    endif
+    
+    let save_pos = getpos('.')
+    
+    let current_line = getline('.')
+    let kwd_pattern = '\v^\s*' . a:kwd . '\s+'
+    if current_line =~ kwd_pattern
+        let block_start = line('.')
+    else
+        let block_start = search(kwd_pattern, 'bcnW')
+        if block_start == 0
+            call setpos('.', save_pos)
+            return 0
+        endif
+    endif
+    
+    call cursor(block_start, 1)
+    let block_end = searchpair(pattern_start, '', pattern_end, 'W')
+    if block_end == 0
+        call setpos('.', save_pos)
+        return 0
+    endif
+    
+    call setpos('.', save_pos)
+    
+    if a:type == 'i'
+        let start_line = block_start + 1
+        let end_line = block_end - 1
+        if start_line > end_line
+            return 0
+        endif
+        return ['V', [0, start_line, 1, 0], [0, end_line, col([end_line, '$']), 0]]
+    else
+        return ['V', [0, block_start, 1, 0], [0, block_end, col([block_end, '$']), 0]]
+    endif
 endfunction
 
 function! textobj#julia#macro_select_a()
-    return s:find_defn('macro')
+    return s:find_defn_new('macro', 'a')
 endfunction
 
 function! textobj#julia#macro_select_i()
-    return s:find_defn_inner('macro')
+    return s:find_defn_new('macro', 'i')
 endfunction
 
-function! s:find_defn(kwd)
-    call textobj#julia#move_cursor_to_starting_line()
-    
-    try
-        let l:defn_pos = textobj#julia#find_defn_line(a:kwd)
-    catch /defn-not-found/
-        return 0
-    endtry
-    
-    let l:defn_indent_level = indent(l:defn_pos[1])
-    let l:end_pos = s:find_last_line(a:kwd, l:defn_pos, l:defn_indent_level)
-    
-    return ['V', l:defn_pos, l:end_pos]
-endfunction
-
-function! s:find_defn_inner(kwd)
-    let l:a_pos = s:find_defn(a:kwd)
-    if type(l:a_pos) == type([])
-        if l:a_pos[1][1] == l:a_pos[2][1]
-            " One-liner, return full selection
-            return l:a_pos
-        endif
-        
-        " Start from beginning of next line after function signature
-        call cursor(l:a_pos[1][1], l:a_pos[1][2])
-        normal! j0
-        let l:start_pos = getpos('.')
-        return ['V', l:start_pos, l:a_pos[2]]
-    endif
-    return 0
-endfunction
-
-function! s:find_last_line(kwd, defn_pos, indent_level)
-    let l:cur_pos = getpos('.')
-    let l:end_pos = l:cur_pos
-    
-    while 1
-        " Check for one-liner: function foo() = ...
-        if getline('.') =~# '^\s*'.a:kwd.'\s\+[^=]*=\s*[^#]'
-            return a:defn_pos
-        endif
-        
-        " Skip the definition line
-        if line('.') == a:defn_pos[1]
-            normal! j
-            continue
-        endif
-        
-        if getline('.') !~# '^\s*$'
-            if indent('.') > a:indent_level
-                let l:end_pos = getpos('.')
-            else
-                break
-            endif
-        endif
-        
-        if line('.') == line('$')
-            break
-        else
-            normal! j
-        endif
-    endwhile
-    
-    call cursor(l:cur_pos[1], l:cur_pos[2])
-    return l:end_pos
-endfunction
