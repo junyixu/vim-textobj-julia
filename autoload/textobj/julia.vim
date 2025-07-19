@@ -103,15 +103,8 @@ function! textobj#julia#function_select_i()
 endfunction
 
 function! s:find_defn_new(kwd, type)
-    if a:type == 'a'
-        let pattern_start = '\v^\s*(' . a:kwd . '|if|for|while|try|begin)\s+'
-        let pattern_end = '\v^\s*end\s*$'
-    elseif a:type == 'i'
-        let pattern_start = '\v^\s*(' . a:kwd . '|if|for|while|try|begin)\s+'
-        let pattern_end = '\v^\s*end\s*$'
-    else
-        return 0
-    endif
+    let pattern_start = '\v^\s*' . a:kwd . '\s+'
+    let pattern_end = '\v^\s*end\s*$'
     
     let save_pos = getpos('.')
     
