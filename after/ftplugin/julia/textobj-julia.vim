@@ -4,17 +4,6 @@
 " License: MIT license
 
 " Integration with vim-textobj-user
-if !exists('b:textobj_function_select')
-  let b:textobj_function_select = function('textobj#julia#function_select')
-
-  if exists('b:undo_ftplugin')
-    let b:undo_ftplugin .= '|'
-  else
-    let b:undo_ftplugin = ''
-  endif
-  let b:undo_ftplugin .= 'unlet b:textobj_function_select'
-endif
-
 if exists('g:loaded_textobj_julia')
   finish
 endif
@@ -45,16 +34,16 @@ if exists('*textobj#user#plugin')
   \ })
 
   " Additional motion mappings for Julia-specific constructs
-  nnoremap <buffer>]m :call search('^\s*function\s', 'W')<cr>
-  nnoremap <buffer>[m :call search('^\s*function\s', 'bW')<cr>
-  nnoremap <buffer>]M :call search('^\s*macro\s', 'W')<cr>
-  nnoremap <buffer>[M :call search('^\s*macro\s', 'bW')<cr>
+  nnoremap <silent> <buffer>]m :call search('^\s*function\s', 'W')<cr>
+  nnoremap <silent> <buffer>[m :call search('^\s*function\s', 'bW')<cr>
+  nnoremap <silent> <buffer>]M :call search('^\s*macro\s', 'W')<cr>
+  nnoremap <silent> <buffer>[M :call search('^\s*macro\s', 'bW')<cr>
   
   " Operator-pending mappings
-  onoremap <buffer>]m :call search('^\s*function\s', 'W')<cr>
-  onoremap <buffer>[m :call search('^\s*function\s', 'bW')<cr>
-  onoremap <buffer>]M :call search('^\s*macro\s', 'W')<cr>
-  onoremap <buffer>[M :call search('^\s*macro\s', 'bW')<cr>
+  onoremap <silent> <buffer>]m :call search('^\s*function\s', 'W')<cr>
+  onoremap <silent> <buffer>[m :call search('^\s*function\s', 'bW')<cr>
+  onoremap <silent> <buffer>]M :call search('^\s*macro\s', 'W')<cr>
+  onoremap <silent> <buffer>[M :call search('^\s*macro\s', 'bW')<cr>
 
   let g:loaded_textobj_julia = 1
 endif
