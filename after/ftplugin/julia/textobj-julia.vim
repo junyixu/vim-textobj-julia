@@ -3,7 +3,7 @@
 " Copyright (C) 2024 Julia Text Object Plugin
 " License: MIT license
 
-if exists('g:loaded_textobj_julia')
+if exists('b:loaded_textobj_julia')
   finish
 endif
 
@@ -58,5 +58,5 @@ if exists('*textobj#user#plugin')
   onoremap <silent> <buffer>]M :call <SID>jump_to_function_end()<cr>
   onoremap <silent> <buffer>[M :call <SID>jump_to_function_start()<cr>
 
-  let g:loaded_textobj_julia = 1
+  let b:loaded_textobj_julia = 1
 endif
